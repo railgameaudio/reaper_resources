@@ -35,8 +35,9 @@ On-screen text (client-approved, v2):
 2. පුරා පැය තුනක සංගීත සමාධියක්..
 3. සුනීර සුමංග සහ අංජලි හේරත් ඔබ හමුවට පැමිණෙන..
 4. (no typed title — the official Sihina Tharaka logotype carries it)
-5. [RnC Take One logo] නැවුම් සංගීත රටා සමග,
-6. බලා සිටින්නට නොව, විඳින්නට එන්න...   ← final punch line, last thing on screen
+5. ප්‍රවේශ පත්‍ර  www.rnctakeone.com   ← tickets, under the concert logo, before the band intro
+6. [RnC Take One logo] නැවුම් සංගීත රටා සමග,
+7. බලා සිටින්නට නොව, විඳින්නට එන්න...   ← final punch line, last thing on screen
 
 - Wherever the band name appears, use the RnC Take One logo (`assets/rnc-takeone-logo.png`), never typed text.
 - Pacing for a slow (~90 BPM) classical music bed added by the client: scene changes on the 90 BPM grid,
