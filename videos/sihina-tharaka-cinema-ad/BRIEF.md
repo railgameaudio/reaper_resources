@@ -25,6 +25,7 @@ Event page: https://www.rnctakeone.com/events/sihina-tharaka-2026
   Every other clip is silent.
 - `assets/logotype.png` — official Sihina Tharaka logotype (`logotype@2x.png` from the event site).
 - `assets/rnc-takeone-logo.png` — RnC Take One logo supplied by the client, keyed to transparent.
+- `assets/band/guitar.jpg` — client stage photo of RnC Take One, graded sepia; one small frame behind the band line.
 
 ## Customizations
 
@@ -33,13 +34,15 @@ On-screen text (client-approved, v2):
 1. නව පරපුරක ආත්මීය හඬවල් දෙකක්..
 2. පුරා පැය තුනක සංගීත සමාධියක්..
 3. සුනීර සුමංග සහ අංජලි හේරත් ඔබ හමුවට පැමිණෙන..
-4. සිහින තාරකා..
+4. (no typed title — the official Sihina Tharaka logotype carries it)
 5. [RnC Take One logo] නැවුම් සංගීත රටා සමග,
 6. බලා සිටින්නට නොව, විඳින්නට එන්න...   ← final punch line, last thing on screen
 
 - Wherever the band name appears, use the RnC Take One logo (`assets/rnc-takeone-logo.png`), never typed text.
 - Pacing for a slow (~90 BPM) classical music bed added by the client: scene changes on the 90 BPM grid,
   ~1s crossfades between shots, ~1.3s scene overlaps, soft sine easing, silent footage in 0.8× slow motion.
+- Only Suneera and Anjalee appear in the footage panels; the band gets one minimal photo frame so it never
+  overshadows the artists.
 - Background: stage spotlights sweeping slowly from above, twinkling star field, slow gold dust.
 
 ## Notes
