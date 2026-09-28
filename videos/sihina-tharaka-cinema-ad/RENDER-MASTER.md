@@ -4,6 +4,21 @@ The master is **1920×1080, 24 fps, 50 s, H.264 at ~40 Mbps (about 250 MB)**, wi
 sound at 20–29 s and silence everywhere else. It's too big to store on GitHub, so you render it locally.
 It's the same composition as the preview files, with less compression.
 
+## Mac: the easy way
+
+1. On GitHub, open the branch `claude/sihina-tharaka-cinema-video-5i2i9j` of
+   `railgameaudio/reaper_resources`, click **Code → Download ZIP**, and unzip it.
+2. Open `videos/sihina-tharaka-cinema-ad/` in Finder.
+3. **Right-click** `Render Master (Mac).command` → **Open** → **Open**. The first time, macOS blocks
+   a plain double-click on downloaded scripts; right-click → Open gets past that.
+4. A Terminal window opens. It installs anything missing (Homebrew, Node.js, FFmpeg; Homebrew asks for
+   your Mac password once), renders, and then shows the finished file in Finder.
+
+If macOS says you don't have permission to run it, open **Terminal** and type `bash ` (with a
+space), then drag the `.command` file into the window and press Enter.
+
+The steps below do the same thing by hand, on any system.
+
 ## 1. One-time setup
 
 Install these two programs:
