@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="si">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Tharaka Serif"; src: url("assets/fonts/NotoSerifSinhala-Regular.ttf"); font-weight: 400; }
+      @font-face { font-family: "Tharaka Serif"; src: url("assets/fonts/NotoSerifSinhala-SemiBold.ttf"); font-weight: 600; }
+      @font-face { font-family: "Tharaka Sans"; src: url("assets/fonts/NotoSansDisplay-CondensedMedium.ttf"); font-weight: 500; }
+      :root { --gold: #f7c74c; --amber: #ffb45c; --cream: #f2ede6; --ink: #06080a; --umber: #1a1006; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+      .stage-bg { position: absolute; inset: 0;
+        background: radial-gradient(ellipse 75% 65% at 50% 38%, #24170a 0%, var(--umber) 36%, var(--ink) 80%); }
+
+      /* starry sky */
+      #stars { position: absolute; inset: 0; }
+      .star { position: absolute; border-radius: 50%; background: #fff6de; }
+      .star.big { box-shadow: 0 0 6px 2px rgba(255,230,170,0.7), 0 0 18px 4px rgba(247,199,76,0.25); }
+
+      /* spotlights from the rig */
+      #beams { position: absolute; inset: 0; opacity: 0; mix-blend-mode: screen; }
+      .beam { position: absolute; top: -80px; width: 620px; height: 1400px; margin-left: -310px;
+        transform-origin: 50% 0; filter: blur(30px);
+        background: linear-gradient(to bottom, rgba(255,226,170,0.26) 0%, rgba(255,190,110,0.10) 45%, rgba(255,180,92,0) 88%);
+        clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+      .lamp { position: absolute; top: -40px; width: 120px; height: 120px; margin-left: -60px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,245,220,0.9) 0%, rgba(255,200,120,0.35) 35%, rgba(255,180,92,0) 70%); }
+      #pool { position: absolute; left: 360px; top: 690px; width: 1200px; height: 420px; border-radius: 50%; opacity: 0;
+        background: radial-gradient(ellipse, rgba(255,205,130,0.22) 0%, rgba(255,180,92,0.07) 45%, rgba(255,180,92,0) 70%); }
+      #dust { position: absolute; inset: 0; }
+      .mote { position: absolute; border-radius: 50%;
+        background: radial-gradient(circle, #ffe7a8 0%, rgba(247,199,76,0.6) 35%, rgba(247,199,76,0) 70%); }
+
+      .panel { position: absolute; overflow: hidden; opacity: 0; background: #0d0904;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 70px rgba(255,180,92,0.10); }
+      .panel-edge { position: absolute; inset: 0; border: 1px solid rgba(247,199,76,0.5);
+        box-shadow: inset 0 0 100px rgba(6,8,10,0.6); pointer-events: none; }
+      .layer { position: absolute; inset: 0; overflow: hidden; }
+      .layer video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+      /* suneera.mp4 carries a "Venus" watermark near the bottom edge: over-scale and crop it away */
+      .layer video.wm { left: -11%; top: -3%; width: 122%; height: 122%; }
+
+      /* the band, cut out from the client's poster, standing in the spotlights */
+      #team { position: absolute; left: 510px; top: 380px; width: 900px; height: 408px; opacity: 0;
+        -webkit-mask-image: linear-gradient(to bottom, #000 62%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to bottom, #000 62%, rgba(0,0,0,0) 100%); }
+      #team img { display: block; width: 100%; height: 100%; filter: brightness(0.92);
+        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, #000 7%, #000 93%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, #000 7%, #000 93%, rgba(0,0,0,0) 100%); }
+      .bg-wrap { position: absolute; inset: -60px; opacity: 0; filter: blur(34px) brightness(0.42); }
+      .bg-wrap video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+
+      .line { position: absolute; left: 140px; right: 140px; top: 850px; display: flex; flex-wrap: wrap;
+        justify-content: center; align-items: center; gap: 0 24px; font-family: "Tharaka Serif", serif; font-weight: 600;
+        font-size: 62px; line-height: 1.5; color: var(--cream);
+        text-shadow: 0 4px 30px rgba(0,0,0,0.85), 0 0 40px rgba(255,180,92,0.18); }
+      .w { display: inline-block; opacity: 0; }
+      .gold { color: var(--gold); }
+            #l5 { top: 830px; }
+      #l5 img.w { height: 92px; width: auto; margin-right: 6px;
+        filter: drop-shadow(0 4px 20px rgba(0,0,0,0.8)); }
+
+      #rnc-open { position: absolute; left: 510px; top: 380px; width: 900px; height: 243px; opacity: 0; }
+      #rnc-open img { display: block; width: 100%; height: 100%;
+        filter: drop-shadow(0 8px 40px rgba(0,0,0,0.8)) drop-shadow(0 0 50px rgba(255,180,92,0.18)); }
+      #presents { position: absolute; left: 0; right: 0; top: 670px; display: flex; flex-direction: column;
+        align-items: center; gap: 22px; opacity: 0; }
+      .kicker { font-family: "Tharaka Sans", sans-serif; font-weight: 500; color: var(--gold);
+        letter-spacing: 0.5em; font-size: 28px; padding-left: 0.5em; }
+      .rule { display: block; width: 420px; height: 1px;
+        background: linear-gradient(90deg, rgba(247,199,76,0), var(--gold), rgba(247,199,76,0)); }
+
+      #duo-frame { position: absolute; left: 690px; top: 60px; width: 540px; height: 960px; }
+      .side { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center;
+        width: 520px; font-family: "Tharaka Sans", sans-serif; font-weight: 500; font-size: 30px;
+        letter-spacing: 0.34em; color: var(--gold); opacity: 0; }
+      #side-l { left: 120px; }
+      #side-r { right: 120px; }
+
+      #logo { position: absolute; left: 410px; top: 368px; width: 1100px; height: 344px; opacity: 0; }
+      #logo img { display: block; width: 100%; height: 100%;
+        filter: drop-shadow(0 0 40px rgba(255,180,92,0.35)) drop-shadow(0 10px 30px rgba(0,0,0,0.9)); }
+      #shine { position: absolute; inset: 0; -webkit-mask-image: url("assets/logotype.png"); mask-image: url("assets/logotype.png");
+        -webkit-mask-size: 100% 100%; mask-size: 100% 100%; overflow: hidden; }
+      #shine-bar { position: absolute; top: 0; left: 0; width: 300px; height: 100%;
+        background: linear-gradient(100deg, rgba(255,255,241,0) 0%, rgba(255,255,241,0.5) 50%, rgba(255,255,241,0) 100%); }
+
+      #tix { position: absolute; left: 0; right: 0; top: 770px; display: flex; justify-content: center; align-items: baseline;
+        gap: 0 24px; font-family: "Tharaka Serif", serif; font-weight: 600; font-size: 58px; line-height: 1.5; color: var(--cream);
+        text-shadow: 0 4px 30px rgba(0,0,0,0.85), 0 0 40px rgba(255,180,92,0.18); }
+      #tix .url { margin-left: 18px; font-family: "Tharaka Sans", sans-serif; font-weight: 500; font-size: 50px;
+        letter-spacing: 0.06em; color: var(--gold); }
+      #punch { position: absolute; left: 0; right: 0; top: 440px; display: flex; flex-direction: column; align-items: center; }
+      #punch .p { display: flex; gap: 0 26px; justify-content: center; font-family: "Tharaka Serif", serif;
+        text-shadow: 0 4px 30px rgba(0,0,0,0.85), 0 0 40px rgba(255,180,92,0.2); }
+      #p1 { font-weight: 400; font-size: 70px; line-height: 1.45; color: var(--cream); }
+      #p2 { font-weight: 600; font-size: 112px; line-height: 1.45; color: var(--gold);
+        text-shadow: 0 0 60px rgba(255,180,92,0.4), 0 6px 40px rgba(0,0,0,0.8); }
+      #endfoot { position: absolute; left: 0; right: 0; bottom: 56px; display: flex; flex-direction: column;
+        align-items: center; gap: 22px; opacity: 0; }
+      #endfoot img { display: block; height: 64px; width: auto; }
+      #endfoot .info { font-family: "Tharaka Sans", sans-serif; font-weight: 500; font-size: 27px; letter-spacing: 0.2em;
+        color: var(--gold); padding-left: 0.2em; }
+      #endfoot .info span { color: rgba(242,237,230,0.8); }
+      #fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="50" data-width="1920" data-height="1080">
+      <div class="stage-bg"></div>
+      <div id="stars"></div>
+      <div class="bg-wrap" id="bg-duo"><video id="duo-bg-v" class="clip bg-vid" src="assets/duo-message-warm.mp4" data-start="20.330" data-duration="9.000" data-media-start="0.00" data-track-index="24" muted playsinline></video></div>
+      <div class="bg-wrap" id="bg-stage1"><video id="stage-bg1-v" class="clip wm bg-vid" src="assets/suneera.mp4" data-start="34.000" data-duration="6.670" data-media-start="14.00" data-playback-rate="0.8" data-track-index="26" muted playsinline></video></div>
+      <div class="bg-wrap" id="bg-stage2"><video id="stage-bg2-v" class="clip wm bg-vid" src="assets/suneera.mp4" data-start="43.330" data-duration="6.670" data-media-start="51.50" data-playback-rate="0.8" data-track-index="27" muted playsinline></video></div>
+      <div id="beams">
+        <div class="beam" id="beam1" style="left:300px"></div><div class="lamp" style="left:300px"></div>
+        <div class="beam" id="beam2" style="left:760px"></div><div class="lamp" style="left:760px"></div>
+        <div class="beam" id="beam3" style="left:1160px"></div><div class="lamp" style="left:1160px"></div>
+        <div class="beam" id="beam4" style="left:1620px"></div><div class="lamp" style="left:1620px"></div>
+      </div>
+      <div id="pool"></div>
+      <div id="dust"></div>
+
+      <div id="rnc-open"><img src="assets/rnc-takeone-logo.png" alt="RnC Take One" /></div>
+      <div id="presents"><div class="rule"></div><div class="kicker">PRESENTS</div></div>
+
+      <div class="panel" id="p2l" data-layout-allow-overflow style="left:370px;top:100px;width:560px;height:700px"><div class="layer" id="p2l-l0" data-layout-allow-overflow><video id="p2l-v0" class="clip wm" src="assets/suneera.mp4" data-start="4.000" data-duration="5.750" data-media-start="0.20" data-playback-rate="0.8" data-track-index="2" muted playsinline></video></div><div class="layer" id="p2l-l1" data-layout-allow-overflow><video id="p2l-v1" class="clip wm" src="assets/suneera.mp4" data-start="8.750" data-duration="5.000" data-media-start="44.00" data-playback-rate="0.8" data-track-index="3" muted playsinline></video></div><div class="panel-edge"></div></div><div class="panel" id="p2r" data-layout-allow-overflow style="left:990px;top:100px;width:560px;height:700px"><div class="layer" id="p2r-l0" data-layout-allow-overflow><video id="p2r-v0" class="clip" src="assets/anjali-sepia.mp4" data-start="4.000" data-duration="2.333" data-media-start="10.20" data-playback-rate="0.6" data-track-index="4" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p2r-l1" data-layout-allow-overflow><video id="p2r-v1" class="clip" src="assets/anjali-sepia.mp4" data-start="5.333" data-duration="2.625" data-media-start="3.00" data-playback-rate="0.8" data-track-index="5" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p2r-l2" data-layout-allow-overflow><video id="p2r-v2" class="clip" src="assets/anjali-sepia.mp4" data-start="6.958" data-duration="2.333" data-media-start="11.70" data-playback-rate="0.6" data-track-index="6" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p2r-l3" data-layout-allow-overflow><video id="p2r-v3" class="clip" src="assets/anjali-sepia.mp4" data-start="8.292" data-duration="2.000" data-media-start="1.20" data-playback-rate="0.6" data-track-index="7" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p2r-l4" data-layout-allow-overflow><video id="p2r-v4" class="clip" src="assets/anjali-sepia.mp4" data-start="9.292" data-duration="3.571" data-media-start="13.75" data-playback-rate="0.7" data-track-index="8" muted playsinline style="object-position:50% 35%"></video></div><div class="panel-edge"></div></div><div class="panel" id="p3a" data-layout-allow-overflow style="left:200px;top:120px;width:480px;height:640px"><div class="layer" id="p3a-l0" data-layout-allow-overflow><video id="p3a-v0" class="clip wm" src="assets/suneera.mp4" data-start="12.000" data-duration="4.375" data-media-start="10.10" data-playback-rate="0.8" data-track-index="9" muted playsinline></video></div><div class="layer" id="p3a-l1" data-layout-allow-overflow><video id="p3a-v1" class="clip wm" src="assets/suneera.mp4" data-start="15.375" data-duration="5.875" data-media-start="14.00" data-playback-rate="0.8" data-track-index="10" muted playsinline></video></div><div class="panel-edge"></div></div><div class="panel" id="p3b" data-layout-allow-overflow style="left:720px;top:120px;width:480px;height:640px"><div class="layer" id="p3b-l0" data-layout-allow-overflow><video id="p3b-v0" class="clip" src="assets/anjali-sepia.mp4" data-start="12.330" data-duration="2.500" data-media-start="5.80" data-playback-rate="0.8" data-track-index="11" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p3b-l1" data-layout-allow-overflow><video id="p3b-v1" class="clip" src="assets/anjali-sepia.mp4" data-start="13.830" data-duration="3.571" data-media-start="13.75" data-playback-rate="0.7" data-track-index="12" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p3b-l2" data-layout-allow-overflow><video id="p3b-v2" class="clip" src="assets/anjali-sepia.mp4" data-start="16.401" data-duration="2.625" data-media-start="3.00" data-playback-rate="0.8" data-track-index="13" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p3b-l3" data-layout-allow-overflow><video id="p3b-v3" class="clip" src="assets/anjali-sepia.mp4" data-start="18.026" data-duration="2.333" data-media-start="11.70" data-playback-rate="0.6" data-track-index="14" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p3b-l4" data-layout-allow-overflow><video id="p3b-v4" class="clip" src="assets/anjali-sepia.mp4" data-start="19.360" data-duration="2.000" data-media-start="1.20" data-playback-rate="0.6" data-track-index="15" muted playsinline style="object-position:50% 35%"></video></div><div class="panel-edge"></div></div><div class="panel" id="p3c" data-layout-allow-overflow style="left:1240px;top:120px;width:480px;height:640px"><div class="layer" id="p3c-l0" data-layout-allow-overflow><video id="p3c-v0" class="clip wm" src="assets/suneera.mp4" data-start="12.670" data-duration="5.132" data-media-start="4.80" data-playback-rate="0.76" data-track-index="16" muted playsinline></video></div><div class="layer" id="p3c-l1" data-layout-allow-overflow><video id="p3c-v1" class="clip wm" src="assets/suneera.mp4" data-start="16.802" data-duration="4.533" data-media-start="55.00" data-playback-rate="0.75" data-track-index="17" muted playsinline></video></div><div class="panel-edge"></div></div><div class="panel" id="p5l" data-layout-allow-overflow style="left:330px;top:100px;width:560px;height:700px"><div class="layer" id="p5l-l0" data-layout-allow-overflow><video id="p5l-v0" class="clip wm" src="assets/suneera.mp4" data-start="28.670" data-duration="5.000" data-media-start="51.30" data-playback-rate="0.7" data-track-index="18" muted playsinline></video></div><div class="layer" id="p5l-l1" data-layout-allow-overflow><video id="p5l-v1" class="clip wm" src="assets/suneera.mp4" data-start="32.670" data-duration="3.250" data-media-start="16.00" data-playback-rate="0.8" data-track-index="19" muted playsinline></video></div><div class="panel-edge"></div></div><div class="panel" id="p5r" data-layout-allow-overflow style="left:1030px;top:100px;width:560px;height:700px"><div class="layer" id="p5r-l0" data-layout-allow-overflow><video id="p5r-v0" class="clip" src="assets/anjali-sepia.mp4" data-start="28.670" data-duration="2.500" data-media-start="5.80" data-playback-rate="0.8" data-track-index="20" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p5r-l1" data-layout-allow-overflow><video id="p5r-v1" class="clip" src="assets/anjali-sepia.mp4" data-start="30.170" data-duration="2.333" data-media-start="10.20" data-playback-rate="0.6" data-track-index="21" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p5r-l2" data-layout-allow-overflow><video id="p5r-v2" class="clip" src="assets/anjali-sepia.mp4" data-start="31.503" data-duration="2.000" data-media-start="1.20" data-playback-rate="0.6" data-track-index="22" muted playsinline style="object-position:50% 35%"></video></div><div class="layer" id="p5r-l3" data-layout-allow-overflow><video id="p5r-v3" class="clip" src="assets/anjali-sepia.mp4" data-start="32.503" data-duration="3.125" data-media-start="13.75" data-playback-rate="0.8" data-track-index="23" muted playsinline style="object-position:50% 35%"></video></div><div class="panel-edge"></div></div>
+
+      <div id="team"><img src="assets/band/rnc-team.png" alt="RnC Take One" /></div>
+
+      <div class="panel" id="duo-frame"><div class="layer" id="duo-layer" data-layout-allow-overflow><video id="duo-v" class="clip" src="assets/duo-message-warm.mp4" data-start="20.330" data-duration="9.030" data-media-start="0.00" data-track-index="25" muted playsinline></video></div><div class="panel-edge"></div></div>
+      <div class="side" id="side-l">LIVE IN STOCKHOLM</div>
+      <div class="side" id="side-r">31 · 10 · 2026</div>
+      <audio id="duo-audio" src="assets/duo-message-warm.mp4" data-start="20.33" data-duration="9.03" data-media-start="0"
+        data-track-index="40" data-volume="1" data-fade-in="0.3" data-fade-out="0.6"></audio>
+
+      <div class="line" id="l1"><span class="w">නව</span><span class="w">පරපුරක</span><span class="w">ආත්මීය</span><span class="w">හඬවල්</span><span class="w">දෙකක්..</span></div>
+      <div class="line" id="l2"><span class="w">පුරා</span><span class="w">පැය</span><span class="w">තුනක</span><span class="w">සංගීත</span><span class="w">සමාධියක්..</span></div>
+      <div class="line" id="l3"><span class="w gold">සුනීර</span><span class="w gold">සුමංග</span><span class="w">සහ</span><span class="w gold">අංජලි</span><span class="w gold">හේරත්</span><span class="w">ඔබ</span><span class="w">හමුවට</span><span class="w">පැමිණෙන..</span></div>
+      <div class="line" id="l5"><img class="w" src="assets/rnc-takeone-logo.png" alt="RnC Take One" /><span class="w">නැවුම්</span><span class="w">සංගීත</span><span class="w">රටා</span><span class="w">සමග,</span></div>
+
+      <div id="tix"><span class="w">ප්‍රවේශ</span><span class="w">පත්‍ර</span><span class="w url">www.rnctakeone.com</span></div>
+      <div id="logo"><img src="assets/logotype.png" alt="සිහින තාරකා" /><div id="shine" data-layout-allow-overflow><div id="shine-bar"></div></div></div>
+
+      <div id="punch">
+        <div class="p" id="p1"><span class="w">බලා</span><span class="w">සිටින්නට</span><span class="w">නොව,</span></div>
+        <div class="p" id="p2"><span class="w">විඳින්නට</span><span class="w">එන්න...</span></div>
+      </div>
+      <div id="endfoot">
+        <img src="assets/rnc-takeone-logo.png" alt="RnC Take One" />
+        <div class="info">SAT 31 OCT 2026 <span>·</span> FOLKETS HUS HALLUNDA, STOCKHOLM <span>·</span> DOORS 16:00 <span>·</span> RNCTAKEONE.COM</div>
+      </div>
+      <div id="fade"></div>
+    </div>
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+        const DUR = 50;
+        const XF = 1.0;
+        let seed = 20261031;
+        const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+        const loop = (cyc) => Math.max(0, Math.floor(DUR / cyc) - 1);
+
+        // ---- starry sky ----
+        const stars = document.getElementById("stars");
+        for (let i = 0; i < 170; i++) {
+          const s = document.createElement("div");
+          const big = rnd() < 0.1;
+          s.className = big ? "star big" : "star";
+          const size = big ? 3 + rnd() * 2 : 1 + rnd() * 1.8;
+          s.style.width = size + "px"; s.style.height = size + "px";
+          s.style.left = (rnd() * 1920).toFixed(1) + "px";
+          s.style.top = (rnd() * 1080).toFixed(1) + "px";
+          stars.appendChild(s);
+          const hi = big ? 0.95 : 0.35 + rnd() * 0.45;
+          const cyc = 2.2 + rnd() * 3.5;
+          tl.fromTo(s, { opacity: hi * 0.15 }, { opacity: hi, duration: cyc, ease: "sine.inOut", yoyo: true, repeat: loop(cyc) }, rnd() * 1.5);
+        }
+        tl.fromTo("#stars", { opacity: 0 }, { opacity: 1, duration: 3.0, ease: "sine.inOut" }, 0);
+
+        // ---- slow golden dust ----
+        const dust = document.getElementById("dust");
+        for (let i = 0; i < 40; i++) {
+          const d = document.createElement("div");
+          d.className = "mote";
+          const size = 4 + rnd() * 9;
+          d.style.width = size + "px"; d.style.height = size + "px";
+          d.style.left = (rnd() * 1920).toFixed(1) + "px";
+          d.style.top = (rnd() * 1080).toFixed(1) + "px";
+          dust.appendChild(d);
+          tl.fromTo(d, { y: 0, x: 0 }, { y: -(80 + rnd() * 180), x: (rnd() - 0.5) * 100, duration: DUR, ease: "none" }, 0);
+          const cyc = 2.5 + rnd() * 3;
+          const base = 0.15 + rnd() * 0.4;
+          tl.fromTo(d, { opacity: base * 0.2 }, { opacity: base, duration: cyc, ease: "sine.inOut", yoyo: true, repeat: loop(cyc) }, rnd() * 1.2);
+        }
+
+        // ---- spotlights: slow sweeps, intensity follows the scene ----
+        [["#beam1", 14, -6, 10.5], ["#beam2", 6, -9, 13.0], ["#beam3", -6, 9, 12.0], ["#beam4", -14, 6, 11.0]].forEach(([s, a, b, cyc]) =>
+          tl.fromTo(s, { rotation: a }, { rotation: b, duration: cyc, ease: "sine.inOut", yoyo: true, repeat: loop(cyc) }, 0));
+        tl.fromTo("#beams", { opacity: 0 }, { opacity: 1, duration: 2.5, ease: "sine.inOut" }, 0);
+        tl.fromTo("#pool", { opacity: 0 }, { opacity: 1, duration: 2.5, ease: "sine.inOut" }, 0.4);
+        const beams = (v, at, d = 2.0) => tl.to("#beams", { opacity: v, duration: d, ease: "sine.inOut" }, at);
+        beams(0.55, 4.0); beams(0.3, 20.0, 1.5); beams(0.6, 28.67); beams(1.0, 34.0); beams(0.55, 39.33); beams(1.0, 43.33);
+        tl.to("#pool", { opacity: 0.35, duration: 2.0, ease: "sine.inOut" }, 4.0);
+        tl.to("#pool", { opacity: 1, duration: 2.0, ease: "sine.inOut" }, 43.33);
+
+        // ---- helpers (slow, soft: 90 BPM, one beat = 0.667s) ----
+        const wordsIn = (sel, at, stagger = 0.33, dur = 1.6) =>
+          tl.fromTo(sel + " .w", { opacity: 0, y: 14, filter: "blur(10px)" },
+            { opacity: 1, y: 0, filter: "blur(0px)", duration: dur, ease: "sine.out", stagger }, at);
+        const lineOut = (sel, at, dur = 1.2) =>
+          tl.to(sel + " .w", { opacity: 0, filter: "blur(8px)", duration: dur, ease: "sine.inOut", stagger: 0.06 }, at);
+        const panelIn = (sel, at, dy = 24) =>
+          tl.fromTo(sel, { opacity: 0, y: dy, scale: 1.02 }, { opacity: 1, y: 0, scale: 1, duration: 2.0, ease: "sine.out" }, at);
+        const panelOut = (sel, at, d = 1.33) => tl.to(sel, { opacity: 0, scale: 0.99, duration: d, ease: "sine.inOut" }, at);
+
+        // shot crossfades inside panels + slow push on every shot
+        [
+          ["#p2l-l0", 4.000, 5.750, 0],
+          ["#p2l-l1", 8.750, 5.000, 1],
+          ["#p2r-l0", 4.000, 2.333, 0],
+          ["#p2r-l1", 5.333, 2.625, 1],
+          ["#p2r-l2", 6.958, 2.333, 1],
+          ["#p2r-l3", 8.292, 2.000, 1],
+          ["#p2r-l4", 9.292, 3.571, 1],
+          ["#p3a-l0", 12.000, 4.375, 0],
+          ["#p3a-l1", 15.375, 5.875, 1],
+          ["#p3b-l0", 12.330, 2.500, 0],
+          ["#p3b-l1", 13.830, 3.571, 1],
+          ["#p3b-l2", 16.401, 2.625, 1],
+          ["#p3b-l3", 18.026, 2.333, 1],
+          ["#p3b-l4", 19.360, 2.000, 1],
+          ["#p3c-l0", 12.670, 5.132, 0],
+          ["#p3c-l1", 16.802, 4.533, 1],
+          ["#p5l-l0", 28.670, 5.000, 0],
+          ["#p5l-l1", 32.670, 3.250, 1],
+          ["#p5r-l0", 28.670, 2.500, 0],
+          ["#p5r-l1", 30.170, 2.333, 1],
+          ["#p5r-l2", 31.503, 2.000, 1],
+          ["#p5r-l3", 32.503, 3.125, 1]
+        ].forEach(([sel, st, d, xf]) => {
+          if (xf) tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: XF, ease: "sine.inOut" }, st);
+          tl.fromTo(sel, { scale: 1.0 }, { scale: 1.05, duration: d, ease: "none" }, st);
+        });
+
+        // 1. RnC Take One presents (0 – 4.67)
+        tl.fromTo("#rnc-open", { opacity: 0, scale: 1.04, filter: "blur(14px)" },
+          { opacity: 1, scale: 1, filter: "blur(0px)", duration: 2.0, ease: "sine.out" }, 0.67);
+        tl.fromTo("#presents", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1.33, ease: "sine.out" }, 2.0);
+        tl.to(["#rnc-open", "#presents"], { opacity: 0, filter: "blur(8px)", duration: 1.33, ease: "sine.inOut" }, 3.67);
+
+        // 2. two voices (4.0 – 12.67)
+        panelIn("#p2l", 4.0); panelIn("#p2r", 4.33);
+        wordsIn("#l1", 5.33);
+        lineOut("#l1", 11.0);
+        panelOut("#p2l", 11.33); panelOut("#p2r", 11.33);
+
+        // 3. three hours of music (12.0 – 21.0)
+        panelIn("#p3a", 12.0, -24); panelIn("#p3b", 12.33); panelIn("#p3c", 12.67, -24);
+        wordsIn("#l2", 13.33);
+        lineOut("#l2", 19.0);
+        panelOut("#p3a", 19.33); panelOut("#p3b", 19.5); panelOut("#p3c", 19.67);
+
+        // 4. the duo, in their own voices (20.33 – 29.36) — the only clip with sound
+        tl.fromTo("#bg-duo", { opacity: 0 }, { opacity: 1, duration: 1.5, ease: "sine.inOut" }, 20.0);
+        tl.fromTo("#duo-frame", { opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 1.33, ease: "sine.out" }, 20.33);
+        tl.fromTo("#side-l", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 1.6, ease: "sine.out" }, 21.33);
+        tl.fromTo("#side-r", { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 1.6, ease: "sine.out" }, 21.67);
+        tl.to(["#side-l", "#side-r"], { opacity: 0, duration: 1.0, ease: "sine.inOut" }, 27.67);
+        tl.to("#duo-frame", { opacity: 0, scale: 0.99, duration: 1.0, ease: "sine.inOut" }, 28.36);
+        tl.to("#bg-duo", { opacity: 0, duration: 1.33, ease: "sine.inOut" }, 28.0);
+
+        // 5. Suneera Sumanga & Anjalee Herath (28.67 – 35.33)
+        panelIn("#p5l", 28.67); panelIn("#p5r", 29.0);
+        wordsIn("#l3", 29.67, 0.3);
+        lineOut("#l3", 33.67);
+        panelOut("#p5l", 34.0); panelOut("#p5r", 34.0);
+
+        // 6. official Sihina Tharaka logotype (34.67 – 40.67)
+        tl.fromTo("#bg-stage1", { opacity: 0 }, { opacity: 0.7, duration: 2.0, ease: "sine.inOut" }, 34.0);
+        tl.to("#bg-stage1", { opacity: 0, duration: 1.33, ease: "sine.inOut" }, 39.33);
+        tl.fromTo("#logo", { opacity: 0, scale: 0.94, filter: "blur(18px)" },
+          { opacity: 1, scale: 1, filter: "blur(0px)", duration: 2.0, ease: "sine.out" }, 34.33);
+        tl.fromTo("#shine-bar", { x: -320 }, { x: 1200, duration: 2.0, ease: "sine.inOut" }, 35.67);
+        // tickets, before the band intro
+        wordsIn("#tix", 35.67, 0.3, 1.3);
+        lineOut("#tix", 39.0, 1.0);
+        tl.to("#logo", { opacity: 0, scale: 1.03, filter: "blur(10px)", duration: 1.33, ease: "sine.inOut" }, 39.33);
+
+        // 7. RnC Take One — fresh arrangements (39.33 – 44.33)
+        tl.fromTo("#team", { opacity: 0, y: 16, filter: "blur(8px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 2.0, ease: "sine.out" }, 39.33);
+        tl.fromTo("#team img", { scale: 1.0 }, { scale: 1.04, duration: 5.0, ease: "none" }, 39.33);
+        wordsIn("#l5", 40.0, 0.33);
+        lineOut("#l5", 43.0);
+        tl.to("#team", { opacity: 0, filter: "blur(6px)", duration: 1.33, ease: "sine.inOut" }, 43.0);
+
+        // 8. final beat: logo + punch line (43.33 – 50)
+        tl.fromTo("#bg-stage2", { opacity: 0 }, { opacity: 0.5, duration: 2.0, ease: "sine.inOut" }, 43.33);
+        tl.fromTo("#logo", { opacity: 0, y: -262, scale: 0.66, filter: "blur(14px)" },
+          { opacity: 1, y: -262, scale: 0.62, filter: "blur(0px)", duration: 2.0, ease: "sine.out", immediateRender: false }, 43.67);
+        tl.fromTo("#shine-bar", { x: -320 }, { x: 1200, duration: 2.0, ease: "sine.inOut", immediateRender: false }, 47.0);
+        wordsIn("#p1", 44.33, 0.33, 1.6);
+        wordsIn("#p2", 45.33, 0.5, 1.8);
+        tl.fromTo("#endfoot", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 1.6, ease: "sine.out" }, 46.33);
+        tl.fromTo("#fade", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "sine.in" }, 49.0);
+
+        window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
